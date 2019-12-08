@@ -22,31 +22,3 @@ h1 {
 p {
   text-align: center;
 }
-
-.buttons {
-  display: flex;
-  justify-content: center;
-}
-
-.card, .card-red {
-  height: 150px;
-  width: 100px;
-  background-color: #BFBFBF;
-  border-radius: 5px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.card-red {
-  color: red;
-}
-
-.cards {
-  margin: 0 auto;
-}
-
-.input-bet {
-  display: flex;
-  justify-content: center;
-}

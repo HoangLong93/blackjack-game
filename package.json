@@ -3,14 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@pusher/chatkit": "^0.7.18",
-    "axios": "^0.19.0",
-    "pusher-js": "^5.0.3",
+    "@material-ui/core": "^4.7.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-scripts": "0.9.x",
-    "semantic-ui-css": "^2.4.1",
-    "semantic-ui-react": "^0.88.1"
+    "styled-components": "^4.4.1"
   },
   "devDependencies": {},
   "scripts": {
