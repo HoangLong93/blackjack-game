@@ -39,9 +39,47 @@ export const getCount = (cards) => {
   }, 0);
 }
   
+export const dealCards = (currentPlayersState) => {
+  const newPlayersState = currentPlayersState.map(player => {
+    const playerCard1 = getRandomCard();
+    const playerCard2 = getRandomCard();
+    const playerStartingHand = [playerCard1, playerCard2];
+    return {
+      ...player,
+      cards: playerStartingHand,
+      count: getCount(playerStartingHand),
+      inputValue: '',
+      currentBet: null,
+      gameOver: false,
+      message: null,
+    }
+  })
+
+  const dealerCard1 = getRandomCard();
+  const dealerStartingHand = [dealerCard1, {}];
+  const dealer = {
+    cards: dealerStartingHand,
+    count: getCount(dealerStartingHand),
+    name: 'Dealer',
+    isDealer: true,
+  };
+
+  return {players: newPlayersState, dealer};
+}
+
 export const dealerDraw = (dealer) => {
   const randomCard = getRandomCard();
   dealer.cards.push(randomCard);
   dealer.count = getCount(dealer.cards);
   return dealer;
+}
+
+export const getWinner = (dealer, player) => {
+  if (dealer.count > player.count || player.count > 21) {
+    return 'dealer';
+  } else if (dealer.count < player.count) {
+    return 'player';
+  } else {
+    return 'draw';
+  }
 }

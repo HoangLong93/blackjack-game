@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import styled from 'styled-components'
 
 import { Board } from '../Board'
-import { getRandomCard, getCount, dealerDraw } from '../../shared/misc'
+import { getRandomCard, getCount, dealerDraw, getWinner, dealCards } from '../../shared/misc'
 
 const PlayerBoardContainer = styled.div`
   display: flex;
@@ -23,35 +23,6 @@ export class Table extends Component {
       showCard: false,
     };
   }
-  
-  dealCards() {
-    const players = this.state.players.map(player => {
-      const playerCard1 = getRandomCard();
-      const playerCard2 = getRandomCard();
-      const playerStartingHand = [playerCard1, playerCard2];
-    
-      return {
-        ...player,
-        cards: playerStartingHand,
-        count: getCount(playerStartingHand),
-        inputValue: '',
-        currentBet: null,
-        gameOver: false,
-        message: null,
-      }
-    })
-
-    const dealerCard1 = getRandomCard();
-    const dealerStartingHand = [dealerCard1, {}];
-    const dealer = {
-      cards: dealerStartingHand,
-      count: getCount(dealerStartingHand),
-      name: 'Dealer',
-      isDealer: true,
-    };
-    
-    return {players, dealer};
-  }
 
   showCard = () => {
     const playersStateCopy = Object.assign([], this.state.players);
@@ -71,7 +42,7 @@ export class Table extends Component {
   }
 
   startHand = () => {
-    const { players, dealer } = this.dealCards();
+    const { players, dealer } = dealCards(this.state.players);
 
     this.setState({
       dealer,
@@ -92,7 +63,7 @@ export class Table extends Component {
           player.message = 'Please bet whole numbers only.';
         } else {
           // Deduct current bet from wallet
-          player.wallet = player.wallet - currentBet;
+          player.wallet -= currentBet;
           player.inputValue = ''
           player.currentBet = currentBet
           player.message = ''
@@ -108,13 +79,13 @@ export class Table extends Component {
       const randomCard = getRandomCard();
 
       const playersStateCopy = Object.assign([], this.state.players);
-      let newPlayerStateCopy = playersStateCopy[this.state.position]
-      newPlayerStateCopy.cards.push(randomCard);
-      newPlayerStateCopy.count = getCount(newPlayerStateCopy.cards);
+      let currentPlayerStateCopy = playersStateCopy[this.state.position]
+      currentPlayerStateCopy.cards.push(randomCard);
+      currentPlayerStateCopy.count = getCount(currentPlayerStateCopy.cards);
 
-      if (newPlayerStateCopy.count > 21) {
-        newPlayerStateCopy.gameOver = true
-        newPlayerStateCopy.message = 'BUST!'
+      if (currentPlayerStateCopy.count > 21) {
+        currentPlayerStateCopy.gameOver = true
+        currentPlayerStateCopy.message = 'BUST!'
         this.setState({ players: playersStateCopy, position: this.state.position + 1 }, () => {
           if (this.state.position === this.state.players.length) {
             this.revealDealerCards();
@@ -139,14 +110,13 @@ export class Table extends Component {
 
     // Keep drawing cards until count is 17 or more
     while(dealer.count < 17) {
-      const draw = dealerDraw(dealer);
-      dealer = draw;
+      dealer = dealerDraw(dealer);
     }
 
     if (dealer.count > 21) {
       const newPlayersStateCopy = playersStateCopy.map(player => {
         if (!player.gameOver) {
-          player.wallet = player.wallet + player.currentBet * 2;
+          player.wallet += player.currentBet * 2;
           player.message = 'Dealer bust! You win!'
         }
         return player
@@ -159,7 +129,7 @@ export class Table extends Component {
     } else {
       const newPlayersStateCopy = playersStateCopy.map(player => {
         if (!player.gameOver) {
-          const winner = this.getWinner(dealer, player);
+          const winner = getWinner(dealer, player);
           if (winner === 'dealer') {
             player.message = 'Dealer wins...';
           } else if (winner === 'player') {
@@ -185,16 +155,6 @@ export class Table extends Component {
       this.revealDealerCards()
     } else {
       this.setState({position: this.state.position + 1})
-    }
-  }
-  
-  getWinner(dealer, player) {
-    if (dealer.count > player.count || player.count > 21) {
-      return 'dealer';
-    } else if (dealer.count < player.count) {
-      return 'player';
-    } else {
-      return 'draw';
     }
   }
   
